@@ -51,12 +51,14 @@ fromRope :: Ropeable a => Rope a -> a
 fromRope = F.foldMap id . toList
 
 ------------------------------------------------------------------------------
-
+{-
 getWeight :: Rope a -> Pos
 getWeight Nil = Pos 0
 getWeight Leaf {weight} = weight
 getWeight Node {weight} = weight
+-}
 
+-- recalculate Node weight
 calcWeight :: Rope a -> Pos
 calcWeight Nil = Pos 0
 calcWeight Leaf {weight} = weight
@@ -109,7 +111,9 @@ append :: Ropeable a => Rope a -> Rope a -> Rope a
 append Nil r = r
 append l Nil = l
 append l @ (Leaf w x) r = Node l w r
-append l r = Node l (length l) r
+append l @ Node {} r = let node = Node l w r
+                           w = calcWeight node
+                       in node
 
 ------------------------------------------------------------------------------
 
@@ -121,7 +125,7 @@ splitAt i leaf @ (Leaf w x)
         where (l, r) = chunkSplitAt i x
               
 splitAt i node @ (Node l w r) = case compare i w of
-        EQ -> Just ( Node l w Nil, r)
+        EQ -> Just (l, r)
         GT -> case splitAt (i `sub` w) r of
                        Nothing -> Just (node, Nil)
                        Just (r1, r2) -> Just (l `append` r1, r2)
