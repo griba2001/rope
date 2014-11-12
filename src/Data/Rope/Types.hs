@@ -42,5 +42,5 @@ class Monoid a => Ropeable a where
 
 ------------------------------------------------------------------------------
 data Rope a = Nil | Leaf {weight:: Pos, chunk :: a}
-                  | Node {left :: (Rope a), weight :: Pos, right :: (Rope a) }
+                  | Node {left :: Rope a, weight :: Pos, right :: Rope a }
                     deriving (Eq, Show)

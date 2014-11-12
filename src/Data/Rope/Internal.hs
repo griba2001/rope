@@ -157,7 +157,7 @@ delete i j (Leaf w chk)
   | otherwise = Leaf w' chk'
         where
                 chk' = chunkDelete i j chk
-                w' = chunkLength nextChk
+                w' = chunkLength chk'
 
 delete i j (Node l w r)
         | l' == Nil && r' == Nil = Nil
