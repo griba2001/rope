@@ -154,10 +154,10 @@ delete i j rope
 
 delete i j (Leaf w chk) 
   | i == Pos 0 && j >= w = Nil
-  | otherwise = Leaf nextW nextChk
+  | otherwise = Leaf w' chk'
         where
-                nextChk = chunkDelete i j chk
-                nextW = chunkLength nextChk
+                chk' = chunkDelete i j chk
+                w' = chunkLength nextChk
 
 delete i j (Node l w r)
         | l' == Nil && r' == Nil = Nil
