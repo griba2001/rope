@@ -1,5 +1,5 @@
 {-# LANGUAGE TypeFamilies #-}
-module Data.Rope.Types where
+module Data.Rope.Internals.Types where
 
 import Data.Monoid
 
@@ -25,11 +25,9 @@ instance Bounded Pos where
    maxBound = Pos maxBound
 ------------------------------------------------------------------------------
 
-chunkSize = 3 :: Int
-
 class Monoid a => Ropeable a where
   type Item a
-
+  
   chunkLength :: a -> Pos
 
   chunkAt :: Pos -> a -> Item a

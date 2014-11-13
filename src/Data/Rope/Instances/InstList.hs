@@ -1,11 +1,14 @@
 {-# LANGUAGE TypeSynonymInstances, TypeFamilies, FlexibleInstances #-}
-module Data.Rope.Instances.InstString where
+module Data.Rope.Instances.InstList where
 
 import qualified Data.List as L
 
-import Data.Rope.Types
-import Data.Rope.Internal
+import Data.Rope.Internals.Types
 import Safe
+
+chunkSize :: Int
+chunkSize = 3  -- low for test purposes
+
 
 instance Ropeable [a] where
   type Item [a] = a

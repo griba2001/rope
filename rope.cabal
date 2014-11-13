@@ -2,7 +2,7 @@
 -- see http://haskell.org/cabal/users-guide/
 
 name:                rope
-version:             0.4.0.0
+version:             0.4.0.1
 synopsis:            A rope structure
 -- description:         
 -- license:             
@@ -16,9 +16,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Data.Rope.Rope, Data.Rope.Internal, Data.Rope.Types, Data.Rope.Instances
-  other-modules:       Data.Rope.Instances.InstString
-                       -- , Util
+  exposed-modules:     Data.Rope.Rope, Data.Rope.Internals.Internal, Data.Rope.Internals.Types, Data.Rope.Instances
+  other-modules:       Data.Rope.Instances.InstList
   other-extensions:    TypeSynonymInstances, TypeFamilies, FlexibleInstances
   build-depends:       base >=4.7 && <4.8, safe >= 0.3, dlist >= 0.7.1
   hs-source-dirs:      src

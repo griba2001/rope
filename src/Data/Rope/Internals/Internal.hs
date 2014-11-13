@@ -1,13 +1,14 @@
 {-# LANGUAGE PackageImports, TypeFamilies, NamedFieldPuns, MultiWayIf #-}
-module Data.Rope.Internal (
+module Data.Rope.Internals.Internal (
  Pos, Ropeable(..), Rope,
  empty, singleton, cons,
  null, length, depth,
- toRope, fromRope,        
+ toRope, -- build a non-trivial rope from a Ropeable
+ fromRope,        
  index,
  insert, delete, report,
  append, splitAt,
- fromList,  -- build a complex rope from a list of Ropeables
+ fromList,  -- build a non-trivial rope from a list of Ropeables
  toList,        
 ) where
 
@@ -18,7 +19,7 @@ import qualified Data.Foldable as F
 import Data.Monoid
 import qualified "dlist" Data.DList as D
 
-import Data.Rope.Types
+import Data.Rope.Internals.Types
 
 ------------------------------------------------------------------------------
 
@@ -58,7 +59,7 @@ getWeight Leaf {weight} = weight
 getWeight Node {weight} = weight
 -}
 
--- recalculate Node weight
+-- recalculate Node weight for append and delete
 calcWeight :: Rope a -> Pos
 calcWeight Nil = Pos 0
 calcWeight Leaf {weight} = weight

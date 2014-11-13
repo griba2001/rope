@@ -7,9 +7,9 @@ module Data.Rope.Rope (
 ) where
 
 import Prelude hiding (null, length)
-import qualified Data.Rope.Internal as I
+import qualified Data.Rope.Internals.Internal as I
 import Data.Rope.Instances()
-import Data.Rope.Types
+import Data.Rope.Internals.Types
 import Data.Monoid
 
 empty :: (Ropeable a) => Rope a
