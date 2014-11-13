@@ -1,4 +1,5 @@
 module Data.Rope.Rope (
+  Rope,
   empty, cons,
   null, length,
   pack, unpack,
