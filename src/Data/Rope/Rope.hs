@@ -3,10 +3,11 @@ module Data.Rope.Rope (
   null, length,
   pack, unpack,
   insert, delete,
-  append, report,        
+  append, report,
+  splitAt,        
 ) where
 
-import Prelude hiding (null, length)
+import Prelude hiding (null, length, splitAt)
 import qualified Data.Rope.Internals.Internal as I
 import Data.Rope.Instances()
 import Data.Rope.Internals.Types
@@ -46,4 +47,11 @@ report :: Ropeable a => Int -> Int -> Rope a -> a
 report i j rope
        | i >= 0 && j == i = mempty
        | i >= 0 && j > i = I.report (Pos i) (Pos j) rope
+
+splitAt :: Ropeable a => Int -> Rope a -> Maybe (Rope a, Rope a)
+splitAt i rope
+        | i == 0 = Just (empty, rope)
+        | i > 0 = I.splitAt (Pos i) rope
+        
+
 
