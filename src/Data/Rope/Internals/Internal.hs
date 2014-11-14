@@ -1,4 +1,4 @@
-{-# LANGUAGE PackageImports, TypeFamilies, NamedFieldPuns, MultiWayIf #-}
+{-# LANGUAGE PackageImports, NamedFieldPuns, MultiWayIf #-} 
 module Data.Rope.Internals.Internal (
  Pos, Ropeable(..), Rope,
  empty, singleton, cons,
@@ -52,22 +52,6 @@ fromRope :: Ropeable a => Rope a -> a
 fromRope = F.foldMap id . toList
 
 ------------------------------------------------------------------------------
-{-
-getWeight :: Rope a -> Pos
-getWeight Nil = Pos 0
-getWeight Leaf {weight} = weight
-getWeight Node {weight} = weight
--}
-
--- recalculate Node weight for append and delete
-calcWeight :: Rope a -> Pos
-calcWeight Nil = Pos 0
-calcWeight Leaf {weight} = weight
-calcWeight (Node Nil _ _) = Pos 0
-calcWeight (Node (Leaf w _) _ _) = w
-calcWeight (Node l @ (Node l' w r') _ _) = w `add` calcWeight r'
-
-------------------------------------------------------------------------------
 
 empty :: Ropeable a => Rope a
 empty = Nil
@@ -112,9 +96,7 @@ append :: Ropeable a => Rope a -> Rope a -> Rope a
 append Nil r = r
 append l Nil = l
 append l @ (Leaf w x) r = Node l w r
-append l @ Node {} r = let node = Node l w r
-                           w = calcWeight node
-                       in node
+append l @ Node {} r = Node l (length l) r
 
 ------------------------------------------------------------------------------
 
@@ -166,12 +148,8 @@ delete i j (Leaf w chk)
 
 delete i j (Node l w r)
         | l' == Nil && r' == Nil = Nil
-        | l' == Nil = let node = Node r' w' Nil
-                          w' = calcWeight node
-                          in node
-        | otherwise = let node = Node l' w' r'
-                          w' = calcWeight node
-                      in node
+        | l' == Nil = Node r' (length r') Nil
+        | otherwise = Node l' (length l') r'
    where
            l' = if | i == Pos 0 && j >= w -> Nil
                    | i < w -> delete i j l

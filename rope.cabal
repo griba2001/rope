@@ -2,7 +2,7 @@
 -- see http://haskell.org/cabal/users-guide/
 
 name:                rope
-version:             0.4.1.0
+version:             0.4.1.1
 synopsis:            A rope structure
 -- description:         
 -- license:             
@@ -32,5 +32,5 @@ Test-Suite test-rope
   Build-Depends:        base, Cabal >= 1.20.0
                         , QuickCheck >= 2.4
                         , random >= 1.0.1
-                        , rope
+                        , rope == 0.4.1.1
                         , containers >=0.5 && <0.6
