@@ -16,17 +16,17 @@ instance Ropeable [a] where
   -- chunkCons ch str = ch : str
   chunkCons = (:)
   
-  chunkSplitAt (Pos i) = L.splitAt i
+  chunkSplitAt i = L.splitAt . fromPos $ i
   
-  chunkLength = Pos . L.length
+  chunkLength = newPos . L.length
   
-  chunkAt (Pos i) s = s `Safe.at` i
+  chunkAt i s = s `Safe.atMay` (fromPos i)
   
   chunkSegments [] = [[]]
   chunkSegments xs = case post of
                        [] -> [pre]   
                        _ ->  pre : chunkSegments post
     where
-          (pre, post) = chunkSplitAt (Pos chunkSize) xs
+          (pre, post) = chunkSplitAt (newPos chunkSize) xs
 
   

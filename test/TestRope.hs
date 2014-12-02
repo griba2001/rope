@@ -38,9 +38,9 @@ instance Arbitrary StrWithTwoIdx where
   arbitrary = sized $ \n -> do
        k <- choose (0, n)
        i <- if k == 0 then return 0 else choose (0, k-1)
-       j <- if k == 0 then return 0 else choose (i,k-1)
+       j <- if k == 0 then return 0 else choose (i, k-1)
        list <- sequence [ arbitrary | _ <- [1..k] ]
-       return $ StrWithTwoIdx list i j
+       return $ StrWithTwoIdx list i (j - i)
 
 
 propToRopeFromRopeIsId :: [String] -> Bool
@@ -65,17 +65,17 @@ propInsert list rndInt = L.all test list
 propDelete :: [StrWithTwoIdx] -> Int -> Bool
 propDelete list rndInt = L.all test list
   where
-    test (StrWithTwoIdx x i j) = actual == expected
+    test (StrWithTwoIdx x i n) = actual == expected
       where
-        expected = listDelete i j x
-        actual = R.unpack $ R.delete i j $ R.pack x
+        expected = listDelete i n x
+        actual = R.unpack $ R.delete i n $ R.pack x
 
 propReport :: [StrWithTwoIdx] -> Int -> Bool
 propReport list rndInt = L.all test list
   where
-    test (StrWithTwoIdx x i j) = actual == expected
+    test (StrWithTwoIdx x i n) = actual == expected
       where
-        expected = listReport i j x
-        actual = R.report i j $ R.pack x
+        expected = listReport i n x
+        actual = R.report i n $ R.pack x
         
         

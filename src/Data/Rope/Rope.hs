@@ -32,27 +32,37 @@ pack = I.toRope
 unpack :: (Ropeable a) => Rope a -> a
 unpack = I.fromRope
 
+{-@ insert :: Ropeable a => {i:Int | i >= 0} -> a -> Rope a -> Rope a
+@-}
+
 insert :: Ropeable a => Int -> a -> Rope a -> Rope a
 insert i
-   | i >= 0 = I.insert (Pos i)
+   | i >= 0 = I.insert (newPos i)
+
+{-@ delete :: (Eq a, Ropeable a) => { i : Int | i >= 0} -> { n : Int | n >= 0 } -> Rope a -> Rope a
+@-}
 
 delete :: (Eq a, Ropeable a) => Int -> Int -> Rope a -> Rope a
-delete i j
-  | i >= 0 && j == i = id
-  | i >= 0 && j > i = I.delete (Pos i) (Pos j)
+delete i n
+  | i >= 0 && n == 0 = id
+  | i >= 0 && n > 0 = I.delete (newPos i) (newPos n)
 
 append :: Ropeable a => Rope a -> Rope a -> Rope a
 append = I.append
 
+{-@ report :: (Ropeable a) => { i : Int | i >= 0 } -> { n : Int | n >= 0 } -> Rope a -> a
+@-}
 report :: Ropeable a => Int -> Int -> Rope a -> a
-report i j rope
-       | i >= 0 && j == i = mempty
-       | i >= 0 && j > i = I.report (Pos i) (Pos j) rope
+report i n rope
+       | i >= 0 && n == 0 = mempty
+       | i >= 0 && n > 0 = I.report (newPos i) (newPos n) rope
 
+{-@ splitAt :: (Ropeable a) => { i : Int | i >= 0 } -> Rope a -> Maybe (Rope a, Rope a)
+               @-}       
 splitAt :: Ropeable a => Int -> Rope a -> Maybe (Rope a, Rope a)
 splitAt i rope
         | i == 0 = Just (empty, rope)
-        | i > 0 = I.splitAt (Pos i) rope
+        | i > 0 = I.splitAt (newPos i) rope
         
 
 

@@ -1,6 +1,7 @@
 {-# LANGUAGE PackageImports, NamedFieldPuns, MultiWayIf #-} 
 module Data.Rope.Internals.Internal (
- Pos, Ropeable(..), Rope,
+ Pos, newPos, fromPos,
+ Ropeable(..), Rope,
  empty, singleton, cons,
  null, length, depth,
  toRope, -- build a non-trivial rope from a Ropeable
@@ -29,19 +30,27 @@ chunkSingleton item = chunkCons item mempty
 chunkAppend :: Ropeable a => a -> a -> a
 chunkAppend = mappend
 
+{-@
+chunkSlice :: Ropeable a => { i : Pos | true } -> { n : Pos | n >= 0 } -> a -> a
+@-}
+
 chunkSlice :: Ropeable a => Pos -> Pos -> a -> a
-chunkSlice i j chk
-    | j >= i  = mid
+chunkSlice i n chk
+    | n >= newPos 0  = mid
      where
        (pre, temp) = chunkSplitAt i chk
-       (mid, post) = chunkSplitAt (j `sub` i) temp
+       (mid, post) = chunkSplitAt n temp
+
+{-@
+chunkDelete :: Ropeable a => { i : Pos | true } -> {j : Pos | j >= i} -> a -> a
+@-}
 
 chunkDelete :: Ropeable a => Pos -> Pos -> a -> a
-chunkDelete i j chk
-    | j >= i  = pre `mappend` post
+chunkDelete i n chk
+    | n >= newPos 0  = pre `mappend` post
      where
        (pre, temp) = chunkSplitAt i chk
-       (mid, post) = chunkSplitAt (j `sub` i) temp
+       (mid, post) = chunkSplitAt n temp
        
 ------------------------------------------------------------------------------
 
@@ -65,25 +74,25 @@ singleton x = Leaf (chunkLength x) x
 
 cons :: (Ropeable a) => Item a -> Rope a -> Rope a
 cons item Nil = singleton . chunkSingleton $ item
-cons item (Leaf w chunk) = Leaf (w `add` Pos 1) (chunkCons item chunk)
-cons item (Node l w r) = Node (cons item l) (w `add` Pos 1) r
+cons item (Leaf w chunk) = Leaf (w `add` newPos 1) (chunkCons item chunk)
+cons item (Node l w r) = Node (cons item l) (w `add` newPos 1) r
 
 length :: Ropeable a => Rope a -> Pos
-length Nil = Pos 0
+length Nil = newPos 0
 length (Leaf l _) = l
 length (Node _ w right) = w `add` length right
 
 depth :: Ropeable a => Rope a -> Pos
-depth Nil = Pos 0
-depth Leaf {} = Pos 1
-depth (Node l _ r) = Pos 1 `add` (depth l `max` depth r)
+depth Nil = newPos 0
+depth Leaf {} = newPos 1
+depth (Node l _ r) = newPos 1 `add` (depth l `max` depth r)
 
 ------------------------------------------------------------------------------
 
 index :: Ropeable a => Pos -> Rope a -> Maybe (Item a)
 index _ Nil = Nothing
 index i (Leaf l x)
-        | i < l = Just $ chunkAt i x
+        | i < l = chunkAt i x
         | otherwise = Nothing
 
 index i (Node left w right)
@@ -127,49 +136,45 @@ insert i x rope = case splitAt i rope of
 ------------------------------------------------------------------------------
                        
 delete :: (Eq a, Ropeable a) => Pos -> Pos -> Rope a -> Rope a
-delete i j Nil = Nil
+delete i n Nil = Nil
 
-{-
-delete i j rope
-        | j <= i = rope
-        | j > i = case splitAt i rope of
-                        Just (pre, temp) ->
-                           case splitAt (j `sub` i) temp of
-                             Nothing -> pre
-                             Just (mid, post) -> pre `append` post
-                             -}
-
-delete i j (Leaf w chk) 
-  | i == Pos 0 && j >= w = Nil
+delete i n (Leaf w chk)
+  | i == newPos 0 && (i `add` n) >= w = Nil
   | otherwise = Leaf w' chk'
         where
-                chk' = chunkDelete i j chk
+                chk' = chunkDelete i n chk
                 w' = chunkLength chk'
 
-delete i j (Node l w r)
+delete i n (Node l w r)
         | l' == Nil && r' == Nil = Nil
         | l' == Nil = Node r' (length r') Nil
         | otherwise = Node l' (length l') r'
    where
-           l' = if | i == Pos 0 && j >= w -> Nil
-                   | i < w -> delete i j l
+           l' = if | i == newPos 0 && (i `add` n) >= w -> Nil
+                   | i < w -> delete i n l
                    | otherwise -> l
-           r' = if j > w then delete (i `sub` w) (j `sub` w) r else r
+           r' = if (i `add` n) > w
+                   then let i' = (i `sub` w)
+                            n' = ((i `add` n) `sub` w) `sub` i'
+                        in delete i' n' r
+                   else r
 
 ------------------------------------------------------------------------------
            
 report :: Ropeable a => Pos -> Pos -> Rope a -> a
-report i j Nil = mempty
-report i j (Leaf len chk)
-  = chunkSlice i j chk
+report i n Nil = mempty
+report i n (Leaf len chk)
+  = chunkSlice i n chk
         
-report i j (Node l w r) = leftChunk `mappend` rightChunk
+report i n (Node l w r) = leftChunk `mappend` rightChunk
    where
      leftChunk = if i < w
-                    then report i j l
+                    then report i n l
                     else mempty
-     rightChunk = if j > w
-                     then report (i `sub` w) (j `sub` w) r
+     rightChunk = if (i `add` n) > w
+                     then let i' = (i `sub` w)
+                              n' = ((i `add` n) `sub` w) `sub` i'
+                          in report i' n' r
                      else mempty     
 
 ------------------------------------------------------------------------------
