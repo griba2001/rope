@@ -32,7 +32,10 @@ pack = I.toRope
 unpack :: (Ropeable a) => Rope a -> a
 unpack = I.fromRope
 
-{-@ insert :: Ropeable a => {i:Int | i >= 0} -> a -> Rope a -> Rope a
+{-@ insert :: Ropeable a => {i:Int | i >= 0} ->
+                           a ->
+                           Rope a ->
+                           Rope a
 @-}
 
 insert :: Ropeable a => Int -> a -> Rope a -> Rope a

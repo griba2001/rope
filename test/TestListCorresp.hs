@@ -5,9 +5,9 @@ import Control.Category ((>>>))
 import Control.Applicative
 
 {-@ listInsert :: { i : Int | i >= 0 } ->
-                  { ys : [a] } ->
-                  { xs : [a] } ->
-                  { zs : [a] | zs = take i xs ++ ys ++ drop i xs }
+                  ys : [a] ->
+                  xs : [a] ->
+                  { zs : [a] | zs = (take i xs ++ ys ++ drop i xs) }
        @-}
        
 listInsert :: Int -> [a] -> [a] -> [a]
@@ -17,7 +17,7 @@ listInsert i ys xs
 {-@ listDelete :: { i : Int | i >= 0 } ->
                   { n : Int | n >= 0 } ->
                   xs : [a] ->
-                  { ys : [a] | ys = take i xs ++ drop (i+n) xs }
+                  { ys : [a] | ys = (take i xs ++ drop (i+n) xs) }
           @-}
           
 listDelete  :: Int -> Int -> [a] -> [a]
@@ -28,7 +28,7 @@ listDelete i n
 {-@ listReport :: { i : Int | i >= 0 } ->
                   { n : Int | n >= 0 } ->
                   xs : [a] ->
-                  { ys : [a] | ys = drop i . take (i+n) $ xs }
+                  { ys : [a] | ys = (drop i . take (i+n) $ xs) }
                   @-}
                   
 listReport  :: Int -> Int -> [a] -> [a]

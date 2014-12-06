@@ -30,24 +30,15 @@ chunkSingleton item = chunkCons item mempty
 chunkAppend :: Ropeable a => a -> a -> a
 chunkAppend = mappend
 
-{-@
-chunkSlice :: Ropeable a => { i : Pos | true } -> { n : Pos | n >= 0 } -> a -> a
-@-}
-
 chunkSlice :: Ropeable a => Pos -> Pos -> a -> a
-chunkSlice i n chk
-    | n >= newPos 0  = mid
+chunkSlice i n chk = mid
      where
        (pre, temp) = chunkSplitAt i chk
        (mid, post) = chunkSplitAt n temp
 
-{-@
-chunkDelete :: Ropeable a => { i : Pos | true } -> {j : Pos | j >= i} -> a -> a
-@-}
 
 chunkDelete :: Ropeable a => Pos -> Pos -> a -> a
-chunkDelete i n chk
-    | n >= newPos 0  = pre `mappend` post
+chunkDelete i n chk = pre `mappend` post
      where
        (pre, temp) = chunkSplitAt i chk
        (mid, post) = chunkSplitAt n temp
